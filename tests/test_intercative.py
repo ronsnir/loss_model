@@ -3,7 +3,7 @@ import loss_model
 # %%
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn import metrics
 from sklearn.utils import resample
@@ -19,6 +19,10 @@ import sys
 # %%
 for path in sys.path:
     print (path)
+
+# %% to see all columns instead of truncated version
+pd.options.display.max_columns = None
+
 # %% load the data
 df_sh = pd.read_csv('/home/ron.snir/git/loss_model/data/pi4_full000.csv', skiprows = lambda i: i % 10 != 0)
 # %% create a copy
@@ -34,7 +38,7 @@ na_list = loss_model.na_list_fnc(df_sh)
 # # %%
 # df_test = df[['consumer_date_of_birth', 'tu_dob']]
 # %%
-loss_model.custom_summary(df=df_test,col='consumer_date_of_birth')
+loss_model.custom_summary(df=df_sh,col='tu_freeze')
 # # %%
 # for i in list(df_test):
 #     custom_summary(df=df_test,col=i)
@@ -44,8 +48,8 @@ df_ttt2 = loss_model.num_to_none(df=df_sh, replacements=loss_model.neg_to_none_d
 # %% drop irrelevant features RUN #####################
 df_ttt2 = df_ttt2.drop(loss_model.to_drop_list_beginning, axis=1)
 
-# %% RUN #####################
-na_share_threshold = 99
+# %% RUN ##################### -------------CHECK
+na_share_threshold = 95
 df_ttt = loss_model.remove_full_na(df = df_ttt2, na_share_threshold = na_share_threshold, exeptions = loss_model.exeptions_list)
 # %% check NA's
 loss_model.na_list_fnc(df_ttt)
@@ -171,11 +175,39 @@ loss_model.custom_summary(df=df_ttt,col='rvl_cid_payment_method_last_purchase_0_
 # %% get object columns
 df_ttt.select_dtypes(include=['object']).columns.tolist()
 
-# %%
-df_ttt[neg_to_none_col_string_list] = df_ttt[neg_to_none_col_string_list].replace(neg_to_none_string_dict)
+# # %%
+# df_ttt[neg_to_none_col_string_list] = df_ttt[neg_to_none_col_string_list].replace(neg_to_none_string_dict)
 
 # %%
 loss_model.custom_summary(df=df_ttt,col='payment_method_credit_card_client_reference')
 
 # %% get object columns
 df_ttt.select_dtypes(include=['object']).columns.tolist()
+
+# %% create the target
+df_ttt['unpaid_at_60_rate'] = df_ttt['unpaid_at_60'] / df_ttt['captured_amount']
+
+
+
+
+
+
+
+
+
+
+# %% ##### CORRELATION
+# %% RUN #####################
+columns_to_drop_list = loss_model.cor_selection(df=df_ttt,target_col='unpaid_at_60_rate')
+
+# %% drop high correlated features RUN #####################
+df_ttt = df_ttt.drop(columns_to_drop_list, axis=1)
+
+# %%
+df_ttt.select_dtypes(include=[np.number])
+
+# %%
+df_ttt['is_shopping'] = (df_ttt['merchant_id']=='N101065').astype(int)
+
+# %%
+numeric_list = df.select_dtypes(include=[np.number]).columns[(df.select_dtypes(include=[np.number]) < 0).any()].tolist()

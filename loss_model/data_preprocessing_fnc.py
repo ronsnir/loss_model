@@ -51,10 +51,19 @@ def years_diff(df,today,years_diff_list):
     
     return df
 
+
+# Replace negative values with None
 def num_to_none(df, replacements):
     # Create list of numeric columns
     numeric_list = df.select_dtypes(include=[np.number]).columns[(df.select_dtypes(include=[np.number]) < 0).any()].tolist()
     # replace negative with none
     df[numeric_list] = df[numeric_list].replace(replacements)
     #Return
+    return df
+
+
+# Is shopping function
+def shopping_col(df, merchant_id_col):
+    df['is_shopping'] = (df[merchant_id_col]=='N101065').astype(int)
+    df = df.drop(columns=merchant_id_col)
     return df

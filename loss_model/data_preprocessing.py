@@ -16,6 +16,7 @@ df = loss_model.load_the_data(loss_model.path)
 
 ## Drop columns
 df = df.drop(loss_model.to_drop_list_beginning, axis=1)
+df = df.drop(loss_model.to_drop_list_irrelevant, axis=1)
 
 ## Convert to datetime
 for i in loss_model.date_col_list:

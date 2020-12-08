@@ -11,7 +11,7 @@ date_columns_list = [
 
 
 # The share of NA's that above will be removed
-na_share_threshold = 99
+na_share_threshold = 95
 
 # The columns that we don't want to drop, even if they have high share of NA's
 exeptions_list = [
@@ -113,6 +113,7 @@ to_drop_list_irrelevant = [
     , 'psp_credit_card_brand'                       # there is similar variable - psp_credit_card_brand
     , 'md_gdpr_access_control_date'
     , 'md_update_timestamp'
+    , 'brms_supplied_year_email'                    # starnge values (ex. 1994.0, 201914.0)
 ]
 
 # List of columns to drop (unsuse)
@@ -171,6 +172,12 @@ neg_to_zero_dict = {
     , -1:0
     , -2:0
     , -3:0
+    , -4:0
+    , -5:0
+    , -6:0
+    , -7:0
+    , -8:0
+    , -9:0
 }
 
 # Replace negative with None
@@ -189,6 +196,12 @@ neg_to_none_dict = {
     , -1:np.nan
     , -2:np.nan
     , -3:np.nan
+    , -4:np.nan
+    , -5:np.nan
+    , -6:np.nan
+    , -7:np.nan
+    , -8:np.nan
+    , -9:np.nan
 }
 
 # Replace negative with None
@@ -205,6 +218,12 @@ neg_to_none_string_dict = {
     , '-1':np.nan
     , '-2':np.nan
     , '-3':np.nan
+    , '-4':np.nan
+    , '-5':np.nan
+    , '-6':np.nan
+    , '-7':np.nan
+    , '-8':np.nan
+    , '-9':np.nan
 }
 
 # Columns to check
@@ -286,4 +305,58 @@ cat_var_list = [
     , 'payment_method_card_type'
     , 'payment_method_card_level'
     , 'payment_method_card_issuing_bank'
+
+    , 'usemailageemailiprisk_ip_callingcode'
+    , 'usemailageemailiprisk__e_a_advice_i_d'
+    , 'usemailageemailiprisk_ip_postalconf'
+    , 'usemailageemailiprisk_ip_cityconf'
+    , 'usemailageemailiprisk__e_a_status_i_d'
+    , 'usemailageemailiprisk_ip_riskreasonid'
+    , 'usemailageemailiprisk_ip_countryconf'
+    , 'usemailageemailiprisk_domainrisklevel_i_d'
+    , 'usemailageemailiprisk_domainrelevantinfo_i_d'
+    , 'usemailageemailiprisk__e_a_reason_i_d'
+    , 'usemailageemailiprisk__e_a_risk_band_i_d'
+    , 'usemailageemailiprisk_ip_regionconf'
+    , 'usemailageemailiprisk_ip_metro_code'
+    , 'brms_day_of_week'
+    , 'tu_most_negative_influence_on_vantagescore_factor1'
+    , 'tu_most_negative_influence_on_vantagescore_factor2'
+    , 'tu_most_negative_influence_on_vantagescore_factor3'
+    , 'tu_most_negative_influence_on_vantagescore_factor4'
+    , 'tu_vtg4_most_negative_influence_factor1'
+    , 'tu_vtg4_most_negative_influence_factor2'
+    , 'tu_vtg4_most_negative_influence_factor3'
+    , 'tu_vtg4_most_negative_influence_factor4'
+    , 'rvl_cid_account_worst_pstatus_0_12m'
+    , 'rvl_cid_account_worst_pstatus_3_6m' #check
+    , 'rvl_cid_has_paid_inv_int' #check
+    , 'rvl_cid_pstatus_2nd_last_archived_0_3m' #check
+    , 'rvl_cid_pstatus_max_archived_0_12_months' #check
+    , 'rvl_cid_has_paid_credit_int' #check
+    , 'rvl_cid_pstatus_max_archived_0_24_months' #check
+    , 'rvl_cid_pstatus_3rd_last_archived_0_24m' #check
+    , 'rvl_cid_pstatus_last_archived_0_12m'
+    , 'rvl_cid_has_paid_credit_12m_int'
+    , 'rvl_cid_pstatus_last_archived_0_24m'
+    , 'rvl_cid_has_paid_12m_int'
+    , 'rvl_cid_pstatus_2nd_last_archived_0_12m'
+    , 'rvl_cid_pstatus_max_archived_0_6_months'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_12m'
+    , 'rvl_cid_has_rejection_14d_int'
+    , 'rvl_cid_account_incoming_pstatus_3m'
+    , 'rvl_cid_worst_pstatus_active_inv'
+    , 'rvl_cid_account_worst_pstatus_0_3m'
+    , 'rvl_cid_has_paid_inv_12m_int'
+    , 'rvl_cid_oldest_pstatus_active_inv'
+    , 'rvl_cid_account_worst_pstatus_3_12m'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_6m'
+    , 'rvl_cid_pstatus_last_archived_0_3m'
+    , 'rvl_cid_has_paid_inv_24m_int'
+    , 'rvl_cid_pstatus_last_archived_0_6m'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_3m'
+    , 'rvl_cid_email_has_paid_int'
+    , 'rvl_cid_zip_has_paid_int'
+    , 'payment_method_card_exp_month'
+    , 'is_shopping'
 ]
