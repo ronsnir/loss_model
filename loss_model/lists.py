@@ -9,6 +9,19 @@ date_columns_list = [
     , 'decision_time'
 ]
 
+# The model type and name
+tree_model_type = 'classification'
+tree_model_name = 'catboost'
+
+# Catbood parameters
+constant_params_catboost = {'iterations': 1000,
+                    'random_seed': 101,
+                    'learning_rate': 0.1,
+                    'eval_metric': 'AUC',
+                    'early_stopping_rounds': 20}
+
+# Ther target column
+target_col = 'is_default'
 
 # The share of NA's that above will be removed
 na_share_threshold = 95
@@ -16,6 +29,8 @@ na_share_threshold = 95
 # The columns that we don't want to drop, even if they have high share of NA's
 exeptions_list = [
     'nr_errands'
+    , 'unpaid_at_60_rate'
+    # , 'is_default'
 ]
 
 # Columns which NA's will be converted to 'UNKNOWN'
@@ -30,7 +45,7 @@ na_to_other_list = [
 ]
 
 # Number of lines to skip before taking the line to the test df
-line_step = 1000
+line_step = 10
 
 # List of columns to convert to datetime
 date_col_list = [
@@ -305,6 +320,9 @@ cat_var_list = [
     , 'payment_method_card_type'
     , 'payment_method_card_level'
     , 'payment_method_card_issuing_bank'
+    , 'is_paused'
+    , 'rvl_cid_payment_method_last_purchase_0_3m'
+    , 'payment_method_card_brand'
 
     , 'usemailageemailiprisk_ip_callingcode'
     , 'usemailageemailiprisk__e_a_advice_i_d'
@@ -359,4 +377,76 @@ cat_var_list = [
     , 'rvl_cid_zip_has_paid_int'
     , 'payment_method_card_exp_month'
     , 'is_shopping'
+]
+
+# Categorical columns with numbers that should be converted to integer
+num_to_int_col_list = [
+    'usemailageemailiprisk_ip_callingcode'
+    , 'usemailageemailiprisk_ip_metro_code'
+    , 'tu_most_negative_influence_on_vantagescore_factor1'
+    , 'tu_most_negative_influence_on_vantagescore_factor2'
+    , 'tu_most_negative_influence_on_vantagescore_factor3'
+    , 'tu_most_negative_influence_on_vantagescore_factor4'
+    , 'tu_vtg4_most_negative_influence_factor1'
+    , 'tu_vtg4_most_negative_influence_factor2'
+    , 'tu_vtg4_most_negative_influence_factor3'
+    , 'tu_vtg4_most_negative_influence_factor4'
+]
+
+# Categorical columns with numbers that should be converted to integer
+num_to_int_col_list = [
+    'usemailageemailiprisk_ip_callingcode'
+    , 'usemailageemailiprisk__e_a_advice_i_d'
+    , 'usemailageemailiprisk_ip_postalconf'
+    , 'usemailageemailiprisk_ip_cityconf'
+    , 'usemailageemailiprisk__e_a_status_i_d'
+    , 'usemailageemailiprisk_ip_riskreasonid'
+    , 'usemailageemailiprisk_ip_countryconf'
+    , 'usemailageemailiprisk_domainrisklevel_i_d'
+    , 'usemailageemailiprisk_domainrelevantinfo_i_d'
+    , 'usemailageemailiprisk__e_a_reason_i_d'
+    , 'usemailageemailiprisk__e_a_risk_band_i_d'
+    , 'usemailageemailiprisk_ip_regionconf'
+    , 'usemailageemailiprisk_ip_metro_code'
+    , 'brms_day_of_week'
+    , 'tu_most_negative_influence_on_vantagescore_factor1'
+    , 'tu_most_negative_influence_on_vantagescore_factor2'
+    , 'tu_most_negative_influence_on_vantagescore_factor3'
+    , 'tu_most_negative_influence_on_vantagescore_factor4'
+    , 'tu_vtg4_most_negative_influence_factor1'
+    , 'tu_vtg4_most_negative_influence_factor2'
+    , 'tu_vtg4_most_negative_influence_factor3'
+    , 'tu_vtg4_most_negative_influence_factor4'
+    , 'rvl_cid_account_worst_pstatus_0_12m'
+    , 'rvl_cid_account_worst_pstatus_3_6m' #check
+    , 'rvl_cid_has_paid_inv_int' #check
+    , 'rvl_cid_pstatus_2nd_last_archived_0_3m' #check
+    , 'rvl_cid_pstatus_max_archived_0_12_months' #check
+    , 'rvl_cid_has_paid_credit_int' #check
+    , 'rvl_cid_pstatus_max_archived_0_24_months' #check
+    , 'rvl_cid_pstatus_3rd_last_archived_0_24m' #check
+    , 'rvl_cid_pstatus_last_archived_0_12m'
+    , 'rvl_cid_has_paid_credit_12m_int'
+    , 'rvl_cid_pstatus_last_archived_0_24m'
+    , 'rvl_cid_has_paid_12m_int'
+    , 'rvl_cid_pstatus_2nd_last_archived_0_12m'
+    , 'rvl_cid_pstatus_max_archived_0_6_months'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_12m'
+    , 'rvl_cid_has_rejection_14d_int'
+    , 'rvl_cid_account_incoming_pstatus_3m'
+    , 'rvl_cid_worst_pstatus_active_inv'
+    , 'rvl_cid_account_worst_pstatus_0_3m'
+    , 'rvl_cid_has_paid_inv_12m_int'
+    , 'rvl_cid_oldest_pstatus_active_inv'
+    , 'rvl_cid_account_worst_pstatus_3_12m'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_6m'
+    , 'rvl_cid_pstatus_last_archived_0_3m'
+    , 'rvl_cid_has_paid_inv_24m_int'
+    , 'rvl_cid_pstatus_last_archived_0_6m'
+    , 'rvl_cid_pstatus_3rd_last_archived_0_3m'
+    , 'rvl_cid_email_has_paid_int'
+    , 'rvl_cid_zip_has_paid_int'
+    , 'payment_method_card_exp_month'
+    , 'is_shopping'
+    , 'usemailageemailiprisk_ip_postalcode'
 ]

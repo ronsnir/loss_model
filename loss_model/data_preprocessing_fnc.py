@@ -17,7 +17,7 @@ import loss_model
 def remove_full_na(df, na_share_threshold, exeptions):
     # run na_list_fnc and get the share of NA's per column in a dataframe
     na_df = loss_model.na_list_fnc(df=df)
-    if exeptions in na_df['variable'].values:
+    if na_df['variable'].isin(exeptions).any():
         na_df = na_df[~na_df['variable'].isin(exeptions)]
     else:
         na_df = na_df
@@ -67,3 +67,39 @@ def shopping_col(df, merchant_id_col):
     df['is_shopping'] = (df[merchant_id_col]=='N101065').astype(int)
     df = df.drop(columns=merchant_id_col)
     return df
+
+
+# Is shopping function
+def classifier_column(df, original_column_name:str, condition_value, new_column_name:str, is_bigger_condition: bool=True, drop_the_original: bool=False):
+    
+    if is_bigger_condition==True: # If we want the value to be bigger then something
+        # Create the new column
+        df[new_column_name] = (df[original_column_name]>condition_value).astype(int)
+        if drop_the_original==True: # If we want to drop the original column
+            # Drop the original column
+            df = df.drop(columns=original_column_name)
+    else: # If we want the value to be bigger equal to something
+        df[new_column_name] = (df[original_column_name]==condition_value).astype(int)
+        if drop_the_original==True: # If we want to drop the original column
+            # Drop the original column
+            df = df.drop(columns=original_column_name)
+    # Return
+    return df
+
+
+
+# Function that keep only columns that still exist (after all filtering)
+def filtered_column_list(df, col_list):
+    ## Convert the categorical_variables to np.array
+    small_col_list = np.array(col_list)
+    ## Get the total columns array
+    big_columns_list = df.columns
+    ## Get boolean array for keeping the variables
+    bool_filter_list = np.array(np.isin(big_columns_list, small_col_list), dtype=bool)
+    ## Get the column list after filtering
+    filtered_col_list = list(big_columns_list[bool_filter_list])
+
+    ## Return
+    return filtered_col_list
+
+
