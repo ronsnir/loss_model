@@ -1,17 +1,23 @@
 # %%
-from loss_model import load_the_data, remove_full_na, na_share_threshold, path, line_step, date_col_list, days_diff, days_diff_list, neg_to_zero_col_list, neg_to_zero_dict, neg_to_none_col_list, neg_to_none_dict, years_diff_list, years_diff, today_col, exeptions_list, num_to_none, neg_to_none_string_dict, neg_to_none_col_string_list, na_to_unknown_list, na_to_other_list, to_drop_list_beginning, cor_selection, to_drop_list_irrelevant, shopping_col, train_val_test_split_date, target_col, classifier_column, tree_model_train, tree_model_type, tree_model_name, constant_params_catboost, cat_var_list, filtered_column_list, num_to_int_col_list, model_report
+from loss_model import load_the_data, remove_full_na, na_share_threshold, path, line_step, date_col_list, days_diff, days_diff_list, neg_to_zero_col_list, neg_to_zero_dict, neg_to_none_col_list, neg_to_none_dict, years_diff_list, years_diff, today_col, exeptions_list, num_to_none, neg_to_none_string_dict, neg_to_none_col_string_list, na_to_unknown_list, na_to_other_list, to_drop_list_beginning, cor_selection, to_drop_list_irrelevant, shopping_col, train_val_test_split_date, classifier_column, tree_model_train, tree_model_type, tree_model_name, constant_params_catboost, cat_var_list, filtered_column_list, num_to_int_col_list, model_report, target_col_class, target_col_reg, to_drop_list_end
 import pandas as pd
 import numpy as np
 # %%load the data
 df = load_the_data(path, line_step, is_test=True)
 # df = load_the_data(path)
 # %%
-df_copy = df
-# %%
-df = df_copy
+# df_copy = df
+# # %%
+# df = df_copy
 
 # # %%Drop rows with NA's in unpaid_at_60
 # df_copy.dropna(subset=['unpaid_at_60'])
+
+# %% define target column by model type
+if tree_model_type == 'regression':
+    target_col = target_col_reg
+elif tree_model_type == 'classification':
+    target_col = target_col_class
 
 # %%drop columns
 df = df.drop(to_drop_list_beginning, axis=1)
@@ -52,25 +58,29 @@ df['unpaid_at_60_rate'] = df['unpaid_at_60'] / df['captured_amount']
 df = df.drop(columns='unpaid_at_60')
 
 # %% Create the target column
-df = classifier_column(
-    df=df
-    , original_column_name='unpaid_at_60_rate'
-    , condition_value=0.1
-    , new_column_name='is_default'
-    , is_bigger_condition=True
-    , drop_the_original=True)
+if tree_model_type == 'classification':
+    df = classifier_column(
+        df=df
+        , original_column_name='unpaid_at_60_rate'
+        , condition_value=0.1
+        , new_column_name='is_default'
+        , is_bigger_condition=True
+        , drop_the_original=True)
+elif tree_model_type == 'regression':
+    df = df
 
 # %%# Calculate and drop high correlated variables
 #
 columns_to_drop_list_corr = cor_selection(df=df,target_col=target_col, exeptions_list=exeptions_list)
-
+if np.isin(target_col,columns_to_drop_list_corr) == True:
+    columns_to_drop_list_corr.remove(target_col)
 # %%
 df = df.drop(columns_to_drop_list_corr, axis=1)
 
 # %% Create is_shopping column
 df = shopping_col(df=df, merchant_id_col='merchant_id')
 
-# %% Change numeric categorical columns to integer
+# %% Change numeric categorical columns to string
 for col in num_to_int_col_list:
     if np.isin(col, df.columns) == True:
         df[col] = df[col].astype(str)
@@ -80,6 +90,9 @@ filtered_col_list = filtered_column_list(df=df, col_list=cat_var_list)
 # %% Fill NA with 'other' for categorical variables
 for col in filtered_col_list:
     df[col] = df[col].fillna(value='Other')
+
+# # %% Drop columns (end)
+# df = df.drop(to_drop_list_end, axis=1)
 
 # %% Get the final columns list
 final_col_list = df.columns.to_list()
@@ -105,7 +118,9 @@ model = tree_model_train(
 threshold=0.025
 probs = model_report(model=model, model_name='catboost', tree_model_type='regression', threshold=threshold, X_train=X_train, X_test=X_test, y_train=y_train, y_validation=y_validation, y_test=y_test)
 
-
+# %%
+# %%
+probs_test = model.predict(X_test)
 
 
 
@@ -134,7 +149,7 @@ for i in date_col_list:
     df_pred[i] = pd.to_datetime(df_pred[i], utc=True)
 
 # %%
-df_pred = df_pred[(df_pred['decision_time'] >= '2020-09-01') & (df_pred['decision_time'] <= '2020-10-01')]
+df_pred = df_pred[(df_pred['decision_time'] >= '2020-10-01') & (df_pred['decision_time'] <= '2020-11-01')]
 
 
 # %%days diff calculation
@@ -160,18 +175,21 @@ df_pred['unpaid_at_60_rate'] = df_pred['unpaid_at_60'] / df_pred['captured_amoun
 df_pred = df_pred.drop(columns='unpaid_at_60')
 
 # %% Create the target column
-df_pred = classifier_column(
-    df=df_pred
-    , original_column_name='unpaid_at_60_rate'
-    , condition_value=0.1
-    , new_column_name='is_default'
-    , is_bigger_condition=True
-    , drop_the_original=True)
+if tree_model_type == 'classification':
+    df_pred = classifier_column(
+        df=df_pred
+        , original_column_name='unpaid_at_60_rate'
+        , condition_value=0.1
+        , new_column_name='is_default'
+        , is_bigger_condition=True
+        , drop_the_original=True)
+elif tree_model_type == 'regression':
+    df_pred = df_pred
 
 # %% Create is_shopping column
 df_pred = shopping_col(df=df_pred, merchant_id_col='merchant_id')
 
-# %% Change numeric categorical columns to integer
+# %% Change numeric categorical columns to string
 for col in num_to_int_col_list:
     if np.isin(col, df_pred.columns) == True:
         df_pred[col] = df_pred[col].astype(str)
@@ -184,8 +202,37 @@ for col in filtered_col_list:
 
 # %%
 df_pred = df_pred[final_col_list]
+# %%
+df_pred_features = df_pred.drop('unpaid_at_60_rate', axis=1)
+df_pred_target = df_pred['unpaid_at_60_rate']
 
+# %%
+probs = model.predict(df_pred_features)
 
+# %%
+probs.mean()
+
+# %%
+df_pred_features_index_list = df_pred_features.index.to_list()
+# %%
+probs_d = {'predicted_unpaid_rate_at_60':probs}
+# %%
+probs_df = pd.DataFrame(data=probs_d, index=df_pred_features_index_list)
+
+# %%
+df_pred_features_pred = pd.concat([df_pred_features, probs_df], axis=1)
+
+# %%
+predicted_unpaid_browser_new = df_pred_features_pred[(df_pred_features_pred['is_shopping']=='1') & (df_pred_features_pred['rvl_cid_has_paid']==False)]['predicted_unpaid_rate_at_60'].mean()
+predicted_unpaid_browser_returning = df_pred_features_pred[(df_pred_features_pred['is_shopping']=='1') & (df_pred_features_pred['rvl_cid_has_paid']==True)]['predicted_unpaid_rate_at_60'].mean()
+predicted_unpaid_merchant_new = df_pred_features_pred[(df_pred_features_pred['is_shopping']=='0') & (df_pred_features_pred['rvl_cid_has_paid']==False)]['predicted_unpaid_rate_at_60'].mean()
+predicted_unpaid_merchant_returning = df_pred_features_pred[(df_pred_features_pred['is_shopping']=='0') & (df_pred_features_pred['rvl_cid_has_paid']==True)]['predicted_unpaid_rate_at_60'].mean()
+
+# %%
+print(f'The predicted unpaid rate for browser-new is: {round(predicted_unpaid_browser_new*100, 4)}%')
+print(f'The predicted unpaid rate for browser-returning is: {round(predicted_unpaid_browser_returning*100, 4)}%')
+print(f'The predicted unpaid rate for merchant-new is: {round(predicted_unpaid_merchant_new*100, 4)}%')
+print(f'The predicted unpaid rate for merchant-returning is: {round(predicted_unpaid_merchant_returning*100, 4)}%')
 
 
 

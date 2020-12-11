@@ -37,7 +37,8 @@ def days_diff(date1,date2):
 def years_diff(df,today,years_diff_list):
     for y in years_diff_list:
         age_list = []
-        for i in df[y].index.to_list():
+        index_list = df[y].index.to_list()
+        for i in index_list:
             if pd.isnull(df[y].loc[i]):
                 age_val = None
             else:
@@ -45,7 +46,7 @@ def years_diff(df,today,years_diff_list):
             
             age_list.append(age_val)
 
-        age_df = pd.DataFrame(age_list, columns=[y + '_years'])
+        age_df = pd.DataFrame(age_list, columns=[y + '_years'], index=index_list)
         df = pd.concat([df,age_df], axis=1)
         df = df.drop(columns=y)
     

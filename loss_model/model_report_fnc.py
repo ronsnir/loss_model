@@ -1,6 +1,6 @@
 # %%
 #build the report function
-def model_report(model, model_name, threshold, X_train, X_test, y_train, y_validation, y_test):
+def model_report(model, model_name, tree_model_type, threshold, X_train, X_test, y_train, y_validation, y_test):
     from sklearn.metrics import classification_report,confusion_matrix,plot_confusion_matrix,precision_score,recall_score,accuracy_score
     from sklearn.metrics import precision_recall_curve
     from sklearn.metrics import auc
@@ -10,12 +10,15 @@ def model_report(model, model_name, threshold, X_train, X_test, y_train, y_valid
     import matplotlib.pyplot as plt
     import pandas as pd
     #check the target distribution for all df's
-    print("The return rate of y_train is: ", round(y_train.mean(),4))
-    print("The return rate of y_validation is: ", round(y_validation.mean(),4))
-    print("The return rate of y_test is: ", round(y_test.mean(),4))
+    print("The unpaid rate of y_train is: ", round(y_train.mean(),4))
+    print("The unpaid rate of y_validation is: ", round(y_validation.mean(),4))
+    print("The unpaid rate of y_test is: ", round(y_test.mean(),4))
 
     #calculate probabilities of the test df
-    probs = model.predict_proba(X_test)[:,1]
+    if tree_model_type == 'classification':
+        probs = model.predict_proba(X_test)[:,1]
+    elif tree_model_type == 'regression':
+        probs = model.predict(X_test)
 
     #calculate the classes of the test df
     probs_class = (probs >= threshold).astype('int')
