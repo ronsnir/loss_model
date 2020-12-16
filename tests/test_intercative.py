@@ -377,3 +377,10 @@ df_copy['unpaid_at_60_rate'] = df_copy['unpaid_at_60'] / df_copy['captured_amoun
 probs_df = pd.DataFrame({'prob': probs}, columns=['prob'], index=y_test.index.to_list())
 # %%
 probs_df.join(df_copy['unpaid_at_60_rate'], how='left')
+
+
+
+# %%
+test_list = ['a', 'b', 'c']
+
+# %%
