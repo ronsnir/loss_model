@@ -15,3 +15,4 @@ Project Organization
    ├── tests                	<- Here we save our test script
    │   └── test_script.py    	<- Code to run the functions
 --------
+# loss_model
